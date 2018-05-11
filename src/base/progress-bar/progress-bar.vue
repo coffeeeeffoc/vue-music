@@ -68,12 +68,18 @@ export default {
     }
   },
   watch: {
-    percent(newPercent) {
-      if (newPercent > 0 && !this.touch.initiated) {
-        const progressBarLength = this.$refs.progressBar.clientWidth - progressBtnLength
-        const offsetLength = progressBarLength * newPercent
-        this._offset(offsetLength)
-      }
+    percent: {
+      handler(newPercent) {
+        setTimeout(() => {
+          console.log(newPercent)
+          if (newPercent >= 0 && !this.touch.initiated) {
+            const progressBarLength = this.$refs.progressBar.clientWidth - progressBtnLength
+            const offsetLength = progressBarLength * newPercent
+            this._offset(offsetLength)
+          }
+        }, 0)
+      },
+      sync: true
     }
   }
 }

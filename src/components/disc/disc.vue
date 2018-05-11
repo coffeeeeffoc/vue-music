@@ -33,12 +33,15 @@ export default {
   },
   methods: {
     _getDiscSongList() {
+      console.log('getDiscSongList')
       if (!this.disc.dissid) {
         this.$router.push('/recommend')
         return
       }
       getDiscSongList(this.disc.dissid).then((res) => {
+        console.log('normalize')
         this.songs = this._normalizeSong(res.cdlist[0].songlist)
+        console.log('getDiscSongList success')
         // eslint-disable-next-line
         // eval(res)
       })

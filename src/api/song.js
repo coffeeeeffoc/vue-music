@@ -10,7 +10,7 @@ export function getLyric(mid) {
     pcachetime: +new Date(),
     hostUin: 0,
     g_tk: 1567445276,
-    format: 'jsonp',
+    format: 'json',
     needNewCode: 0,
     notice: 0
   })
@@ -18,7 +18,17 @@ export function getLyric(mid) {
   return axios.get(url, {
     params: data
   }).then((res) => {
-    return Promise.resolve(res.data)
+    console.log('api/song--res')
+    console.log(res)
+    var ret = res.data
+    if (typeof ret === 'string') {
+      var reg = /^\w+\(({[^()]+})\)$/
+      var matches = ret.match(reg)
+      if (matches) {
+        ret = JSON.parse(matches[1])
+      }
+    }
+    return Promise.resolve(ret)
   }).catch(function (e) {
     console.log(e)
   })

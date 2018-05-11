@@ -235,9 +235,11 @@ export default {
       this.$refs.middleL.style[transitionDuration] = 300
     },
     ready() {
+      console.log('ready')
       this.songReady = true
     },
     error() {
+      console.log('song error, and ready')
       this.songReady = true
     },
     prev() {
@@ -260,9 +262,13 @@ export default {
       this.songReady = false
     },
     next() {
+      console.log(this.songReady)
       if (!this.songReady) {
         return
       }
+      console.log(this.playList.length)
+      console.log(this.currentIndex)
+      console.log(this.playing)
       if (this.playList.length === 1) {
         this.loop()
         return
@@ -274,10 +280,12 @@ export default {
           this.setCurrentIndex(0)
         }
         if (!this.playing) {
+          console.log('when not playing, next to play')
           this.togglePlay()
         }
       }
       this.songReady = false
+      console.log('song ready false')
     },
     back() {
       this.setfullScreen(false)
@@ -315,6 +323,7 @@ export default {
     leave(el, done) {
       this.$refs.cdWrapper.style.transition = 'all 0.4s'
       const {x, y, scale} = this._getPosandScale()
+      console.log(transform)
       this.$refs.cdWrapper.style[transform] = 'translate3d(' + x + 'px, ' + y + 'px, 0) scale(' + scale + ')'
       // this.$refs.cdWrapper.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0) scale(' + scale + ')'
       this.$refs.cdWrapper.addEventListener('transitionend', done)
@@ -336,8 +345,11 @@ export default {
     },
     togglePlay() {
       if (!this.songReady) {
+        console.log('song not ready')
         return
       }
+      console.log('toggle play')
+      console.log(this.playing)
       this.setPlaying(!this.playing)
       if (this.currentLyric) {
         this.currentLyric.togglePlay()
@@ -345,6 +357,7 @@ export default {
     },
     updateTime(e) {
       this.currentTime = e.target.currentTime
+      console.log('update time')
     },
     formatTime(interval) {
       interval = interval | 0
@@ -361,6 +374,7 @@ export default {
       return num
     },
     onProgressBarChange(percent) {
+      console.log(percent)
       const currentTime = this.currentSong.duration * percent
       this.$refs.audio.currentTime = currentTime
       if (this.currentLyric) {
@@ -387,14 +401,17 @@ export default {
     },
     end() {
       if (this.mode === playMode.loop) {
+        console.log('loop')
         this.loop()
       } else {
+        console.log('next')
         this.next()
       }
     },
     loop() {
       this.$refs.audio.currentTime = 0
       this.$refs.audio.play()
+      console.log('loop')
       if (this.currentLyric) {
         this.currentLyric.seek(0)
       }
@@ -402,6 +419,7 @@ export default {
     getLyric() {
       this.currentSong.getLyric().then((lyric) => {
         // 从第1首连续切换到第二第三首，如果currentSong已经是第三首，而本异步操作是正在获取第二首歌的歌词，则return。接下来就会异步获取第三首的歌词。
+        console.log(lyric)
         if (this.currentSong.lyric !== lyric) {
           return
         }
@@ -409,7 +427,8 @@ export default {
         if (this.playing && this.currentLyric) {
           this.currentLyric.play()
         }
-      }).catch(() => {
+      }).catch((e) => {
+        console.log(e)
         this.currentLyric = null
         this.playingLyric = ''
         this.currentLineNum = 0
@@ -427,32 +446,67 @@ export default {
     }
   },
   watch: {
-    currentSong(newsong, oldSong) {
-      if (newsong.id === oldSong.id) {
-        return
-      }
-      if (this.currentLyric) {
-        this.currentLyric.stop()
-        this.currentTime = 0
-        this.playingLyric = ''
-        this.currentLineNum = 0
-      }
-      // this.$nextTick(() => {
-      //   this.$refs.audio.play()
-      //   this.getLyric()
-      // })
-      // 手机上播放时，前后台切换的时候，为了让歌曲能够播放。
-      clearTimeout(this.timer)
-      this.timer = setTimeout(() => {
-        this.$refs.audio.play()
-        this.getLyric()
-      }, 1000)
+    // currentSong(newsong, oldSong) {
+    //   if (newsong.id === oldSong.id) {
+    //     return
+    //   }
+    //   if (this.currentLyric) {
+    //     this.currentLyric.stop()
+    //     this.currentTime = 0
+    //     this.playingLyric = ''
+    //     this.currentLineNum = 0
+    //   }
+    //   // this.$nextTick(() => {
+    //   //   this.$refs.audio.play()
+    //   //   this.getLyric()
+    //   // })
+    //   // 手机上播放时，前后台切换的时候，为了让歌曲能够播放。
+    //   clearTimeout(this.timer)
+    //   this.timer = setTimeout(() => {
+    //     this.$refs.audio.touchstart = true
+    //     this.$refs.audio.play()
+    //     this.getLyric()
+    //   }, 0)
+    // },
+    currentSong: {
+      handler(newsong, oldSong) {
+        if (newsong.id === oldSong.id) {
+          console.log('the same song, no need to change')
+          return
+        }
+        console.log('changed into new song ')
+        console.log(this.currentLyric)
+        if (this.currentLyric) {
+          console.log('currentLyric stopped')
+          this.currentLyric.stop()
+          this.currentTime = 0
+          this.playingLyric = ''
+          this.currentLineNum = 0
+        }
+        setTimeout(() => {
+          console.log('new song start to play')
+          this.$refs.audio.play()
+          console.log('start to get lyric')
+          this.getLyric()
+          console.log('lyric get over')
+        }, 0)
+      },
+      sync: true
     },
-    playing(newPlaying) {
-      this.$nextTick(() => {
-        const audio = this.$refs.audio
-        newPlaying ? audio.play() : audio.pause()
-      })
+    // playing(newPlaying) {
+    //   const audio = this.$refs.audio
+    //   this.$nextTick(() => {
+    //     newPlaying ? audio.play() : audio.pause()
+    //   })
+    // },
+    playing: {
+      handler(newPlaying) {
+        setTimeout(() => {
+          const audio = this.$refs.audio
+          newPlaying ? audio.play() : audio.pause()
+        }, 0)
+      },
+      sync: true
     }
   },
   components: {

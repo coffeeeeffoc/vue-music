@@ -6,19 +6,19 @@ import fastclick from 'fastclick'
 import VueLazyLoad from 'vue-lazyload'
 import './common/stylus/index.styl'
 import store from './store'
+import Loading from './common/images/coffee.png'
 /* eslint-disable no-unused-vars */
 import vConsole from 'vconsole'
 // var vConsole = new vConsole()
 
-console.log('test')
-
 fastclick.attach(document.body)
 Vue.config.productionTip = false
 Vue.use(VueLazyLoad, {
-  preLoad: 1.3,
+  // preLoad: 1.3,
   // error: 'dist/error.png',
-  loading: 'common/images/coffee.png',
-  attempt: 1
+  // loading: require('./common/images/coffee.png'),
+  loading: Loading
+  // attempt: 1
 })
 /* eslint-disable no-new */
 new Vue({
